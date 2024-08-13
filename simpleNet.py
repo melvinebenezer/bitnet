@@ -55,7 +55,7 @@ class VerySimpleNet(nn.Module):
         super(VerySimpleNet, self).__init__()
         self.linear1 = BitLinearTrain(28*28, hidden_size_1)
         self.linear2 = BitLinearTrain(hidden_size_1, hidden_size_2)
-        self.linear3 = BitLinearTrain(hidden_size_2, 10)
+        self.linear3 = BitLinearTrain(hidden_size_2, 8)
         self.relu = nn.ReLU()
 
     def forward(self, x):
@@ -84,10 +84,10 @@ def swap_linear_layers(
             else:
                 replace_linear(child)
     replace_linear(module)
-    import gc
-    torch.cuda.empty_cache()
-    gc.collect()
-    torch.cuda.synchronize()
+    # import gc
+    # torch.cuda.empty_cache()
+    # gc.collect()
+    # torch.cuda.synchronize()
     return module
 
 def train(train_loader, net, epochs=5, total_iterations_limit=None):
@@ -108,6 +108,7 @@ def train(train_loader, net, epochs=5, total_iterations_limit=None):
             total_iterations += 1
             x, y  =  data
             x = x.to(device)
+            y = y % 8 # Limit the number of classes to 8
             y = y.to(device)
             optimizer.zero_grad()
             output = net(x.view(-1, 28*28))
